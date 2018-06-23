@@ -33,6 +33,12 @@
 
 `npm run watch-poll`
 
+### 发送邮件测试
+- brew install mailhog
+- brew services start mailhog
+- http://127.0.0.1:8025
+
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

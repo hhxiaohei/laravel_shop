@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Listeners\RegisteredListener;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -16,6 +18,10 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Event' => [
             'App\Listeners\EventListener',
         ],
+        //用户注册以后发送激活邮件(放队列执行)
+        Registered::class=>[
+            RegisteredListener::class,
+        ]
     ];
 
     /**
