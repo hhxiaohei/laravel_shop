@@ -38,6 +38,11 @@
 - brew services start mailhog
 - http://127.0.0.1:8025
 
+### 中文faker填充
+
+config/app.php
+
+`'faker_locale' => 'zh_CN',`
 
 ## License
 
