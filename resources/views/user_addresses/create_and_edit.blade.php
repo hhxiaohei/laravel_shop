@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title','新增收货地址')
+@section('title', ($address->id ? '编辑' :'新增'). '收货地址')
 @section('content')
     <div class="row">
         <div class="col-xs-10 col-xs-offset-1">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h2 class="text-center">
-                        新增收货地址
+                        {{$address->id ? '编辑' : '新增'}}收货地址
                     </h2>
                 </div>
                 <div class="panel-body">
@@ -26,9 +26,14 @@
                         </div>
                     @endif
                     <user-addresses-create-and-edit inline-template>
-                        <form class="form-horizontal" role="form" action="{{ route('user_addresses.store') }}" method="post">
+                        @if($address->id)
+                            <form class="form-horizontal" role="form" action="{{ route('user_addresses.update' ,['address'=>$address->id]) }}" method="post">
+                                {{method_field('PUT')}}
+                            @else
+                            <form class="form-horizontal" role="form" action="{{ route('user_addresses.store') }}" method="post">
+                        @endif
                             {!! csrf_field() !!}
-                        <select-district @change="onDistrictChanged" inline-template>
+                        <select-district @change="onDistrictChanged" inline-template :init-value="{{ json_encode([$address->province , $address->city , $address->district]) }}">
                             <div class="form-group">
                                 <label class="control-label col-xs-2">省市区</label>
                                 <div class="col-xs-3">
@@ -60,7 +65,7 @@
                                 详细地址
                             </label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control" name="address" value="{{ old('address') }}">
+                                <input type="text" class="form-control" name="address" value="{{ old('address' , $address->address) }}">
                             </div>
                         </div>
 
@@ -69,21 +74,21 @@
                                 邮编
                             </label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control" name="zip" value="{{ old('zip') }}">
+                                <input type="text" class="form-control" name="zip" value="{{ old('zip' ,$address->zip) }}">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="control-label col-xs-2">姓名</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control" name="contact_name" value="{{ old('contact_name') }}">
+                                <input type="text" class="form-control" name="contact_name" value="{{ old('contact_name',$address->contact_name) }}">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="control-label col-xs-2">电话</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control" name="contact_phone" value="{{ old('contact_phone') }}">
+                                <input type="text" class="form-control" name="contact_phone" value="{{ old('contact_phone',$address->contact_phone) }}">
                             </div>
                         </div>
 
