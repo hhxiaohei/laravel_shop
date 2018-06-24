@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\InvalidRequestException;
 use App\Models\User;
 use App\Notifications\EmailVerificationNotification;
 use Illuminate\Support\Facades\Cache;
@@ -17,17 +18,17 @@ class EmailVerificationController extends Controller
         $token = $request->get('token');
 
         if(!$email || !$token){
-            throw new \Exception('验证链接不正确');
+            throw new InvalidRequestException('验证链接不正确');
         }
 
         $cache_key = 'email_verification_'.$email;
 
         if(Cache::get($cache_key) !== $token){
-            throw new \Exception('验证链接有误');
+            throw new InvalidRequestException('验证链接有误');
         }
 
         if(!$user = User::whereEmail($email)->first()){
-            throw new \Exception('用户不存在!');
+            throw new InvalidRequestException('用户不存在!');
         }
 
         //验证通过
@@ -46,7 +47,7 @@ class EmailVerificationController extends Controller
         $user = $request->user();
 
         if($user->email_verified){
-            throw new \Exception('你已经验证过邮箱了');
+            throw new InvalidRequestException('你已经验证过邮箱了');
         }
 
         $user->notify(new EmailVerificationNotification());
