@@ -33,6 +33,10 @@
 
 `npm run watch-poll`
 
+- 省市区三级联动组件
+
+`yarn add china-area-data`
+
 ### 发送邮件测试
 - brew install mailhog
 - brew services start mailhog

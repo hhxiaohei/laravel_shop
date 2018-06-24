@@ -1,0 +1,99 @@
+@extends('layouts.app')
+
+@section('title','新增收货地址')
+@section('content')
+    <div class="row">
+        <div class="col-xs-10 col-xs-offset-1">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="text-center">
+                        新增收货地址
+                    </h2>
+                </div>
+                <div class="panel-body">
+                    {{--输出错误信息--}}
+                    @if(count($errors)>0)
+                        <div class="alert alert-danger">
+                            <h4>有错误发生:</h4>
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                        {{ $error }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    <user-addresses-create-and-edit inline-template>
+                        <form class="form-horizontal" role="form" action="{{ route('user_addresses.store') }}" method="post">
+                            {!! csrf_field() !!}
+                        <select-district @change="onDistrictChanged" inline-template>
+                            <div class="form-group">
+                                <label class="control-label col-xs-2">省市区</label>
+                                <div class="col-xs-3">
+                                    <select class="form-control" v-model="provinceId">
+                                        <option value="">选择省</option>
+                                        <option v-for="(name,id) in provinces" :value="id">@{{name}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-3">
+                                    <select class="form-control" v-model="cityId">
+                                        <option value="">选择市</option>
+                                        <option v-for="(name,id) in cities" :value="id">@{{name}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-3">
+                                    <select class="form-control" v-model="districtId">
+                                        <option value="">选择区</option>
+                                        <option v-for="(name,id) in districts" :value="id">@{{name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </select-district>
+                        <input type="hidden" name="province" v-model="province">
+                        <input type="hidden" name="city" v-model="city">
+                        <input type="hidden" name="district" v-model="district">
+
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">
+                                详细地址
+                            </label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control" name="address" value="{{ old('address') }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">
+                                邮编
+                            </label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control" name="zip" value="{{ old('zip') }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">姓名</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control" name="contact_name" value="{{ old('contact_name') }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">电话</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control" name="contact_phone" value="{{ old('contact_phone') }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group text-center">
+                            <button class="btn btn-primary" type="submit">提交</button>
+                        </div>
+                    </form>
+                    </user-addresses-create-and-edit>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

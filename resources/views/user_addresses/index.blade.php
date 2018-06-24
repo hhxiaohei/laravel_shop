@@ -5,7 +5,9 @@
     <div class="row">
         <div class="col-xs-10 col-xs-offset-1">
             <div class="panel panel-default">
-                <div class="panel-heading">收货地址列表</div>
+                <div class="panel-heading">收货地址列表
+                    <a href="{{route('user_addresses.create')}}" class="pull-right">新增</a>
+                </div>
                 <div class="panel-body">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -25,8 +27,8 @@
                                 <td>{{ $address->zip }}</td>
                                 <td>{{ $address->contact_phone }}</td>
                                 <td>
-                                    <button class="btn btn-primary">修改</button>
-                                    <button class="btn btn-danger">删除</button>
+                                    <a class="btn btn-primary">修改</a>
+                                    <a class="btn btn-danger">删除</a>
                                 </td>
                             </tr>
                         @endforeach
