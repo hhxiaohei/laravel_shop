@@ -48,6 +48,13 @@ config/app.php
 
 `'faker_locale' => 'zh_CN',`
 
+### Laravel-admin
+
+- 创建控制器
+
+`php artisan admin:make UsersController --model=App\\Models\\User`
+
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
