@@ -13,5 +13,7 @@ yarn-error.log
 /public/js
 /public/css
 /public/fonts
+/public/uploads
+/public/uploads/files
 /public/mix-manifest.json
 .vscode

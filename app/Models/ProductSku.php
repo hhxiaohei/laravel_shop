@@ -8,6 +8,7 @@ class ProductSku extends Model
 {
     protected $fillable = [
         'id',
+        'description',
         'title',
         'price',
         'stock',
