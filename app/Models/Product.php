@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -25,5 +26,13 @@ class Product extends Model
     public function skus()
     {
         return $this->hasMany(ProductSku::class);
+    }
+
+    public function getImageAttribute($value)
+    {
+        if(!starts_with($value , ['http','https'])){
+            return Storage::disk('admin')->url($value);
+        }
+        return $value;
     }
 }

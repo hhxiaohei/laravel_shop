@@ -43,6 +43,9 @@
                             <li>
                                 <a href="{{route('user_addresses.index')}}">收货地址</a>
                             </li>
+                            <li>
+                                <a href="{{route('products.favorites')}}">收藏列表</a>
+                            </li>
                         </ul>
                     </li>
                     @endguest
