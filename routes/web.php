@@ -21,6 +21,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('product/{product}/favorite','ProductsController@favorite')->name('product.favorite');
         //取消关注
         Route::delete('product/{product}/favorite','ProductsController@disfavorite')->name('product.disfavorite');
+        //购物车
+        Route::apiResource('cart','CartController');
     });
 });
 

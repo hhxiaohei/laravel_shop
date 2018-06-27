@@ -19,4 +19,9 @@ class ProductSku extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function cartItem()
+    {
+        return $this->hasMany(CartItem::class);
+    }
 }

@@ -101,6 +101,37 @@
                         }
                     });
             });
+            $('.btn-add-to-cart').click(function () {
+                axios.post('{!! route('cart.store') !!}',{
+                    sku_id: $('label.active input[name=skus]').val(),
+                    amount : $('.cart_amount input').val(),
+                })
+                    .then(function () {
+                        swal('添加成功', '', 'success').then(function () {
+                            location.reload();
+                        });
+                    }, function (error) {
+                        if(error.response){
+                            if (error.response.status === 401) {
+                                swal('请先登录', '', 'success');
+                                return;
+                            }
+                            if (error.response.status === 422) {
+                                let html = '<div>';
+                                _.each(error.response.data.errors, function (errors) {
+                                    _.each(errors, function (error) {
+                                        html += error+'<br>';
+                                    })
+                                });
+                                html += '</div>';
+                                swal({content: $(html)[0], icon: 'error'})
+                                return;
+                            }
+                            swal('系统错误', '', 'error');
+                            return;
+                        }
+                    });
+            });
         });
     </script>
 @endsection
