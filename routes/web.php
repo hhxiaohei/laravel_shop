@@ -22,7 +22,7 @@ Route::group(['middleware' => 'auth'], function () {
         //取消关注
         Route::delete('product/{product}/favorite','ProductsController@disfavorite')->name('product.disfavorite');
         //购物车
-        Route::apiResource('cart','CartController');
+        Route::resource('cart','CartController');
     });
 });
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AddCartRequest;
 use App\Models\CartItem;
+use App\Models\ProductSku;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -13,9 +14,11 @@ class CartController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        //显示购物车产品
+        $cartItems = $request->user()->cartItems()->with('productSku.product')->get();
+        return view('cart.index',['cartItems'=>$cartItems]);
     }
 
     /**
@@ -93,8 +96,9 @@ class CartController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id , Request $request)
     {
-        //
+        $request->user()->cartItems()->where('product_sku_id',$id)->delete();
+        return [];
     }
 }

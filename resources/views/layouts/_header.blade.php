@@ -46,6 +46,9 @@
                             <li>
                                 <a href="{{route('products.favorites')}}">收藏列表</a>
                             </li>
+                            <li>
+                                <a href="{{route('cart.index')}}">购物车</a>
+                            </li>
                         </ul>
                     </li>
                     @endguest
