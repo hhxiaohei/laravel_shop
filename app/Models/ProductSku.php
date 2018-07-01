@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\InternalException;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -46,5 +47,28 @@ class ProductSku extends Model
     public function cartItem()
     {
         return $this->hasMany(CartItem::class);
+    }
+
+    //减库存
+    public function decrementStock($amount)
+    {
+        if($amount<0)
+            throw new InternalException('减库存不可小于0');
+
+        //查询构造器 返回操作成功行数
+        return $this
+            ->newQuery()
+            ->where('id' , $this->id)
+            ->where('stock','>=' , $amount)
+            ->decrement('stock',$amount);
+    }
+
+    //加库存
+    public function incrementStork($amount)
+    {
+        if($amount < 0)
+            throw new InternalException('加库存不能小于0');
+
+        return $this->newQuery()->increment('stock' , $amount);
     }
 }

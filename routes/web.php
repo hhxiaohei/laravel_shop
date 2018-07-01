@@ -23,6 +23,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('product/{product}/favorite','ProductsController@disfavorite')->name('product.disfavorite');
         //购物车
         Route::resource('cart','CartController');
+        //下订单
+        Route::resource('orders' , 'OrdersController');
     });
 });
 

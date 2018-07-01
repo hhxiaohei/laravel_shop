@@ -4,6 +4,49 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\Order
+ *
+ * @property int $id
+ * @property string $no 订单号
+ * @property int $user_id 下单user_id
+ * @property array $address 地址存json
+ * @property float $total_amount 订单总金额
+ * @property string $note 订单备注
+ * @property \Carbon\Carbon|null $paid_at 支付时间
+ * @property string|null $payment_method 支付方式
+ * @property string|null $payment_no 支付平台订单号
+ * @property string|null $refund_status 退款状态
+ * @property string|null $refund_no 退款单号
+ * @property bool $closed 订单是否关闭
+ * @property bool $reviewed 订单是否评价
+ * @property string|null $ship_status 物流状态
+ * @property array $ship_data 物流数据
+ * @property array $extra 额外数据
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\OrderItem[] $items
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereClosed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereExtra($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order wherePaidAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order wherePaymentMethod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order wherePaymentNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereRefundNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereRefundStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereReviewed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereShipData($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereShipStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereTotalAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Order whereUserId($value)
+ * @mixin \Eloquent
+ */
 class Order extends Model
 {
     protected $guarded = [];
@@ -60,7 +103,7 @@ class Order extends Model
 
         static::creating(function($model){
             //创建流水号
-            $model->mo = static::findAvailableNo();
+            $model->no = static::findAvailableNo();
             if(!$model->no){
                 return false;
             }

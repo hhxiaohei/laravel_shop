@@ -16,9 +16,11 @@ class CartController extends Controller
      */
     public function index(Request $request)
     {
+        //地址
+        $addresses = \Auth::user()->addresses()->get();
         //显示购物车产品
         $cartItems = $request->user()->cartItems()->with('productSku.product')->get();
-        return view('cart.index',['cartItems'=>$cartItems]);
+        return view('cart.index',compact('cartItems' , 'addresses'));
     }
 
     /**
