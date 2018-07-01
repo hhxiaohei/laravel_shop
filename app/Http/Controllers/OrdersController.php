@@ -20,9 +20,10 @@ class OrdersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $orders = $request->user()->orders()->with(['items.product','items.productSku'])->orderBy('id','desc')->paginate(5);
+        return view('orders.index',compact('orders'));
     }
 
     /**
@@ -110,9 +111,11 @@ class OrdersController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Order $order)
     {
-        //
+        $this->authorize('own' , $order);
+        $order = $order->load(['items.product','items.productSku']);
+        return view('orders.show',compact('order'));
     }
 
     /**

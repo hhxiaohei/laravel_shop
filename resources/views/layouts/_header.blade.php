@@ -49,6 +49,9 @@
                             <li>
                                 <a href="{{route('cart.index')}}">购物车</a>
                             </li>
+                            <li>
+                                <a href="{{route('orders.index')}}">我的订单</a>
+                            </li>
                         </ul>
                     </li>
                     @endguest
