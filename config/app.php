@@ -67,6 +67,8 @@ return [
 
     'timezone' => 'UTC',
 
+    'queue_ttl' => '1800',
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

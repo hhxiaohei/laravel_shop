@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InternalException;
 use App\Http\Requests\OrderRequest;
+use App\Jobs\CloseOrder;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductSku;
@@ -90,7 +91,7 @@ class OrdersController extends Controller
             //remove cart
             $skuIds = array_pluck($items, 'sku_id');
             $user->cartItems()->whereIn('product_sku_id', $skuIds)->delete();
-
+            dispatch(new CloseOrder($order , config('app.queue_ttl')));
             DB::commit();
             Log::debug('Order store success!');
         } catch (\Exception $e) {
