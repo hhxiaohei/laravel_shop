@@ -81,6 +81,18 @@
                         }
                     });
             });
+
+            $('#select-all').change(function() {
+                // 获取单选框的选中状态
+                // prop() 方法可以知道标签中是否包含某个属性，当单选框被勾选时，对应的标签就会新增一个 checked 的属性
+                var checked = $(this).prop('checked');
+                // 获取所有 name=select 并且不带有 disabled 属性的勾选框
+                // 对于已经下架的商品我们不希望对应的勾选框会被选中，因此我们需要加上 :not([disabled]) 这个条件
+                $('input[name=select][type=checkbox]:not([disabled])').each(function() {
+                    // 将其勾选状态设为与目标单选框一致
+                    $(this).prop('checked', checked);
+                });
+            });
         });
     </script>
 @endsection

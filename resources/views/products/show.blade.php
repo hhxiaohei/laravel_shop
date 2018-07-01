@@ -108,7 +108,7 @@
                 })
                     .then(function () {
                         swal('添加成功', '', 'success').then(function () {
-                            location.reload();
+                            location.href = '{{ route('cart.index') }}';
                         });
                     }, function (error) {
                         if(error.response){
