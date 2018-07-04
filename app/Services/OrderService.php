@@ -24,7 +24,6 @@ class OrderService
 
     public function store($request)
     {
-        $user = $request->user();
         $total_amount = 0;
         $items = $request->items;
         $address = UserAddress::find($request->address_id);
@@ -45,7 +44,7 @@ class OrderService
                 'zip',
                 'full_address',
             ]);
-            $order->user()->associate($user);
+            $order->user()->associate($request->user());
             $order->note = $request->note ?? null;
             $order->save();
 //            Log::info(json_encode($order));
