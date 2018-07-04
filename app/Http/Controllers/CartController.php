@@ -5,10 +5,20 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddCartRequest;
 use App\Models\CartItem;
 use App\Models\ProductSku;
+use App\Services\CartService;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    protected $cartService;
+    /**
+     * CartController constructor.
+     */
+    public function __construct(CartService $cartService)
+    {
+        $this->cartService = $cartService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,8 +28,9 @@ class CartController extends Controller
     {
         //地址
         $addresses = \Auth::user()->addresses()->get();
+        $cartItems = $this->cartService->get();
         //显示购物车产品
-        $cartItems = $request->user()->cartItems()->with('productSku.product')->get();
+        //$cartItems = $request->user()->cartItems()->with('productSku.product')->get();
         return view('cart.index',compact('cartItems' , 'addresses'));
     }
 
@@ -43,18 +54,19 @@ class CartController extends Controller
     {
         $amount = $sku_id = null;
         extract($request->only(['sku_id','amount']));
-        $user = $request->user();
+//        $user = $request->user();
 
         //去购物车中判断sku_id是否存在 存在则加一  不存在则创建
-        if($cart = $user->cartItems()->where('product_sku_id',$sku_id)->first()){
-            $cart->amount += $amount;
-        }else{
-            $cart = new CartItem(['amount'=>$amount]);
-            //创建关联外键信息 一起保存
-            $cart->user()->associate($user);
-            $cart->productSku()->associate($sku_id);
-        }
-        $cart->save();
+//        if($cart = $user->cartItems()->where('product_sku_id',$sku_id)->first()){
+//            $cart->amount += $amount;
+//        }else{
+//            $cart = new CartItem(['amount'=>$amount]);
+//            //创建关联外键信息 一起保存
+//            $cart->user()->associate($user);
+//            $cart->productSku()->associate($sku_id);
+//        }
+//        $cart->save();
+        $this->cartService->add($sku_id , $amount);
         return [];
     }
 
@@ -100,7 +112,8 @@ class CartController extends Controller
      */
     public function destroy($id , Request $request)
     {
-        $request->user()->cartItems()->where('product_sku_id',$id)->delete();
+        $this->cartService->remove($id);
+//        $request->user()->cartItems()->where('product_sku_id',$id)->delete();
         return [];
     }
 }
