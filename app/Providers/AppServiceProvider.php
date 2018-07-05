@@ -28,13 +28,16 @@ class AppServiceProvider extends ServiceProvider
         //alipay
         $this->app->singleton('alipay', function () {
             $config = config('pay.alipay');
+            $config['notify_url']=route('payment.alipay.notify');
             //设置日志等级
             if (app()->environment() != 'production') {
                 $config['mode'] = 'dev';
                 $config['log']['level'] = Logger::DEBUG;
+                $config['notify_url']='http://requestbin.leo108.com/11836vh1';
             } else {
                 $config['log']['level'] = Logger::WARNING;
             }
+            $config['return_url']=route('payment.alipay.return');
             return Pay::alipay($config);
         });
 
@@ -48,5 +51,10 @@ class AppServiceProvider extends ServiceProvider
             }
             return Pay::wechat($config);
         });
+
+        //debug
+        if ($this->app->environment() == 'local') {
+            $this->app->register(\Barryvdh\Debugbar\ServiceProvider::class);
+        }
     }
 }

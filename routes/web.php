@@ -2,7 +2,13 @@
 
 Route::redirect('/', 'products')->name('root');
 Auth::routes();
-
+//Route::get('ali',function(){
+//    return app('alipay')->web([
+//        'out_trade_no'=>mt_rand(11111,99999),
+//        'total_amount'=>1,
+//        'subject'=>'测试支付',
+//    ]);
+//});
 Route::group(['middleware' => 'auth'], function () {
     Route::get('email_verify_notice', 'PageController@emailVerifyNotice')->name('email_verify_notice');
     Route::get('email_verification/verify', 'EmailVerificationController@verify')->name('email_verification.verify');//激活邮箱
@@ -25,8 +31,14 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('cart','CartController');
         //下订单
         Route::resource('orders' , 'OrdersController');
+        //支付宝支付
+        Route::get('payment/{order}/alipay' , 'PaymentController@payByAliPay')->name('payment.alipay');
+        //支付宝 前端回调
+        Route::get('payment/alipay/return','PaymentController@alipayReturn')->name('payment.alipay.return');
     });
 });
 
 //商品
 Route::resource('products', 'ProductsController')->only(['index', 'show']);
+//支付宝 支付 服务器回调
+Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');
