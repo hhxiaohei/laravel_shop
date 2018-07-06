@@ -63,6 +63,11 @@ class Order extends Model
     const SHIP_STS_DELIVERED = 'delivered';
     const SHIP_STS_RECEIVED = 'received';
 
+
+    //支付类型
+    const PAYMENT_METHOD_ALIPAY = 'alipay';
+    const PAYMENT_METHOD_WECHAT = 'wechat_pay';
+
     public static $refundStatusMap = [
         self::REFUND_STATUS_PENDING    => '未退款',
         self::REFUND_STATUS_APPLIED    => '已申请退款',

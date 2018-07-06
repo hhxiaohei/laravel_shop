@@ -10,11 +10,12 @@ return [
     ],
 
     'wechat' => [
-        'app_id'      => '',
-        'mch_id'      => '',
-        'key'         => '',
-        'cert_client' => '',
-        'cert_key'    => '',
+        'app_id'      => '',//appid
+        'mch_id'      => '',//商户号
+        'key'         => '',//api密钥
+        'cert_client' => '',//cert_client证书
+        'cert_key'    => '',//cert_key证书(证书主要是退款使用)
+        'notify_url'  => '',//回调地址
         'log'         => [
             'file' => storage_path('logs/wechat_pay.log'),
         ],

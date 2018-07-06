@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InternalException;
 use App\Models\Order;
+use Endroid\QrCode\QrCode;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -86,15 +87,37 @@ class PaymentController extends Controller
 
     public function payByAliPay(Order $order, Request $request)
     {
+        $this->validateOrder($order);
+        return app('alipay')->web([
+            'out_trade_no' => $order->no,
+            'total_amount' => $order->total_amount,//支付宝支付单位为元
+            'subject'      => '订单号' . $order->no,
+        ]);
+    }
+
+    //todo 微信支付
+    public function payByWechat(Order $order, Request $request)
+    {
+        $this->validateOrder($order);
+        //微信扫码支付
+        $wechatOrder = app('wechat_pay')->scan([
+            'out_trade_no' => $order->no,
+            'total_amount' => $order->total_amount * 100,//微信支付单位为分
+            'subject'      => '订单号' . $order->no,
+        ]);
+        $qrcode = new QrCode($wechatOrder->code_url);
+        return response($qrcode->writeString(), 200, [
+            'Content-Type' => $qrcode->getContentType(),
+        ]);
+
+    }
+
+    public function validateOrder($order)
+    {
         $this->authorize('own', $order);
         if ($order->paid_at || $order->closed) {
             throw new InternalException('订单状态不正确');
         }
-        return app('alipay')->web([
-            'out_trade_no' => $order->no,
-            'total_amount' => $order->total_amount,
-            'subject'      => '订单号' . $order->no,
-        ]);
     }
 
     public function alipayReturn()
@@ -121,10 +144,29 @@ class PaymentController extends Controller
         }
 
         $order->paid_at = now();
-        $order->payment_method = 'alipay';
+        $order->payment_method = Order::PAYMENT_METHOD_ALIPAY;
         $order->payment_no = $data->out_trade_no;
         $order->save();
 
         return app('alipay')->success();
+    }
+
+    //todo 微信支付回调
+    public function wechatPayNotify()
+    {
+        $data = app('wechat_pay')->verify();
+        $order = Order::whereNo($data->our_trade_no)->first();
+        if (!$order) {
+            return 'fail';
+        }
+        if ($order->paid_at) {
+            return app('wechat_pay')->success();
+        }
+        $order->paid_at = now();
+        $order->payment_method = Order::PAYMENT_METHOD_WECHAT;
+        $order->payment_no = $data->transaction_id;
+        $order->save();
+
+        return app('wechat_pay')->success();
     }
 }
