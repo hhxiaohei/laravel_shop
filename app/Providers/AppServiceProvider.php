@@ -53,8 +53,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         //debug
-        if ($this->app->environment() == 'local') {
-            $this->app->register(\Barryvdh\Debugbar\ServiceProvider::class);
-        }
+//        if ($this->app->environment() == 'local') {
+//            $this->app->register(\Barryvdh\Debugbar\ServiceProvider::class);
+//        }
     }
 }

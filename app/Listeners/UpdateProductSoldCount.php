@@ -31,12 +31,18 @@ class UpdateProductSoldCount implements ShouldQueue
         $order = $event->getOrder();
         foreach ($order->items as $item){
             $product = $item->product;
-            //计算总销量
+            //1.计算总销量
             $soldCount = OrderItem::query()
                 ->where('product_id' , $product->id)
                 ->whereHas('order',function ($query){
                     $query->whereNotNull('paid_at');
                 })->sum('amount');
+            //2.自增
+//            $count = OrderItem::query()
+//                ->where('product_id' , $product->id)
+//                ->where('order_id' , $order->id)
+//                ->count();
+//            $product->incremet('sold_count' , $count);
             //更新商品销量
             $product->sold_count = $soldCount;
             $product->save();
