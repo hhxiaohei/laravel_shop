@@ -2,6 +2,8 @@
 
 namespace App\Admin\Controllers;
 
+use App\Exceptions\InternalException;
+use App\Exceptions\InvalidRequestException;
 use App\Models\Order;
 
 use Encore\Admin\Form;
@@ -10,6 +12,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\ModelForm;
+use Illuminate\Http\Request;
 
 class OrdersController extends Controller
 {
@@ -92,7 +95,7 @@ class OrdersController extends Controller
                 $actions->disableDelete();
                 $actions->disableEdit();
 
-                $actions->append("<a href='". route('admin.orders.show',['id'=>$actions->getKey()]) ."'. class='btn btn-primary btn-xs'>查看</a>");
+                $actions->append("<a href='" . route('admin.orders.show', ['id' => $actions->getKey()]) . "'. class='btn btn-primary btn-xs'>查看</a>");
             });
             //批量删除
             $grid->tools(function ($tools) {
@@ -123,9 +126,39 @@ class OrdersController extends Controller
     //自定义显示详情
     public function show(Order $order)
     {
-        return Admin::content(function (Content $content) use (&$order){
+        return Admin::content(function (Content $content) use (&$order) {
             $content->header('查看订单');
-            $content->body(view('admin.orders.show',compact('order')));
+            $content->body(view('admin.orders.show', compact('order')));
         });
+    }
+
+    //发货
+    public function ship(Order $order, Request $request)
+    {
+        //支付
+        if (!$order->paid_at)
+            throw new InvalidRequestException('订单未支付');
+
+        //发货
+        if ($order->ship_status !== Order::SHIP_STS_PENDING)
+            throw new InvalidRequestException('订单已经发货');
+
+        //验证 5.5之后可以返回检验过的值
+        $data = $this->validate($request, [
+            'express_company' => ['required'],
+            'express_no'      => ['required'],
+        ], [], [
+            'express_company' => '物流公司',
+            'express_no'      => '物流单号',
+        ]);
+//        dd($data);
+
+        $order->update([
+            'ship_status' => Order::SHIP_STS_DELIVERED,
+            'ship_data'   => $data,
+        ]);
+
+        admin_toastr('发货成功!');
+        return redirect()->back();
     }
 }
