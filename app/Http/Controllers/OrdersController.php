@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InternalException;
+use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\OrderRequest;
 use App\Jobs\CloseOrder;
 use App\Models\Order;
@@ -40,8 +41,8 @@ class OrdersController extends Controller
      */
     public function index(Request $request)
     {
-        $orders = $request->user()->orders()->with(['items.product','items.productSku'])->orderBy('id','desc')->paginate(5);
-        return view('orders.index',compact('orders'));
+        $orders = $request->user()->orders()->with(['items.product', 'items.productSku'])->orderBy('id', 'desc')->paginate(5);
+        return view('orders.index', compact('orders'));
     }
 
     /**
@@ -60,7 +61,7 @@ class OrdersController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(OrderRequest $request , OrderService $orderService)
+    public function store(OrderRequest $request, OrderService $orderService)
     {
         return $orderService->store($request);
     }
@@ -73,9 +74,9 @@ class OrdersController extends Controller
      */
     public function show(Order $order)
     {
-        $this->authorize('own' , $order);
-        $order = $order->load(['items.product','items.productSku']);
-        return view('orders.show',compact('order'));
+        $this->authorize('own', $order);
+        $order = $order->load(['items.product', 'items.productSku']);
+        return view('orders.show', compact('order'));
     }
 
     /**
@@ -110,5 +111,20 @@ class OrdersController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    // 用户 收货
+    public function received(Order $order, Request $request)
+    {
+        $this->authorize('own', $order);
+
+        if ($order->ship_status !== Order::SHIP_STS_DELIVERED)
+            throw new InvalidRequestException('订单未发货');
+
+        $order->ship_status = Order::SHIP_STS_RECEIVED;
+        $order->save();
+
+        return $order;
+//        return redirect()->back();
     }
 }

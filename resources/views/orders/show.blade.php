@@ -28,23 +28,48 @@
                                     </div>
                                     <div>
             <span class="product-title">
-               <a target="_blank" href="{{ route('products.show', [$item->product_id]) }}">{{ $item->product->title }}</a>
+               <a target="_blank"
+                  href="{{ route('products.show', [$item->product_id]) }}">{{ $item->product->title }}</a>
              </span>
                                         <span class="sku-title">{{ $item->productSku->title }}</span>
                                     </div>
                                 </td>
                                 <td class="sku-price text-center vertical-middle">￥{{ $item->price }}</td>
                                 <td class="sku-amount text-center vertical-middle">{{ $item->amount }}</td>
-                                <td class="item-amount text-right vertical-middle">￥{{ number_format($item->price * $item->amount, 2, '.', '') }}</td>
+                                <td class="item-amount text-right vertical-middle">
+                                    ￥{{ number_format($item->price * $item->amount, 2, '.', '') }}</td>
                             </tr>
                         @endforeach
-                        <tr><td colspan="4"></td></tr>
+                        <tr>
+                            <td colspan="4"></td>
+                        </tr>
                     </table>
                     <div class="order-bottom">
                         <div class="order-info">
-                            <div class="line"><div class="line-label">收货地址：</div><div class="line-value">{{ join(' ', $order->address) }}</div></div>
-                            <div class="line"><div class="line-label">订单备注：</div><div class="line-value">{{ $order->remark ?: '-' }}</div></div>
-                            <div class="line"><div class="line-label">订单编号：</div><div class="line-value">{{ $order->no }}</div></div>
+                            <div class="line">
+                                <div class="line-label">收货地址：</div>
+                                <div class="line-value">{{ join(' ', $order->address) }}</div>
+                            </div>
+                            <div class="line">
+                                <div class="line-label">订单备注：</div>
+                                <div class="line-value">{{ $order->remark ?: '-' }}</div>
+                            </div>
+                            <div class="line">
+                                <div class="line-label">订单编号：</div>
+                                <div class="line-value">{{ $order->no }}</div>
+                            </div>
+                            <!-- 输出物流状态 -->
+                            <div class="line">
+                                <div class="line-label">物流状态：</div>
+                                <div class="line-value">{{ \App\Models\Order::$shipStatusMap[$order->ship_status] }}</div>
+                            </div>
+                            <!-- 如果有物流信息则展示 -->
+                            @if($order->ship_data)
+                                <div class="line">
+                                    <div class="line-label">物流信息：</div>
+                                    <div class="line-value">{{ $order->ship_data['express_company'] }} {{ $order->ship_data['express_no'] }}</div>
+                                </div>
+                            @endif
                         </div>
                         <div class="order-summary text-right">
                             <div class="total-amount">
@@ -69,8 +94,19 @@
                             </div>
                             @if(!$order->paid_at && !$order->closed)
                                 <div class="payment-buttons">
-                                    <a href="{{ route('payment.alipay',['order'=>$order->id]) }}" class="btn btn-success btn-xs">支付宝支付</a>
-                                    <a href="{{ route('payment.wechat',['order'=>$order->id]) }}" class="btn btn-success btn-xs">微信支付</a>
+                                    <a href="{{ route('payment.alipay',['order'=>$order->id]) }}"
+                                       class="btn btn-success btn-xs">支付宝支付</a>
+                                    <a href="{{ route('payment.wechat',['order'=>$order->id]) }}"
+                                       class="btn btn-success btn-xs">微信支付</a>
+                                </div>
+                            @endif
+                            @if($order->ship_status === \App\Models\Order::SHIP_STS_DELIVERED)
+                                <div class="receive-button">
+                                    <form action="{{ route('orders.received' , ['id'=>$order->id]) }}" method="post">
+                                        {!! csrf_field() !!}
+                                        {{ method_field('PATCH') }}
+                                        <button type="button" id="btn-receive" class="btn btn-sm btn-success">订单收货</button>
+                                    </form>
                                 </div>
                             @endif
                         </div>
@@ -79,4 +115,36 @@
             </div>
         </div>
     </div>
+@endsection
+@section('scriptsAfterJs')
+    <script>
+        $(document).ready(function () {
+            // 确认收货按钮点击事件
+            $('#btn-receive').click(function () {
+                // 弹出确认框
+                swal({
+                    title: "确认已经收到商品？",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                    buttons: ['取消', '确认收到'],
+                })
+                    .then(function (ret) {
+                        console.log(ret);
+                        // 如果点击取消按钮则不做任何操作
+                        if (!ret) {
+                            return false;
+                        }else {
+                            // ajax 提交确认操作
+                            axios.patch('{{ route('orders.received', ['id'=>$order->id]) }}')
+                                .then(function () {
+                                    // 刷新页面
+                                    location.reload();
+                                })
+                        }
+                    });
+            });
+
+        });
+    </script>
 @endsection
