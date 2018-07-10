@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderReviewd;
 use App\Exceptions\InternalException;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\OrderRequest;
+use App\Http\Requests\SendReviewRequest;
 use App\Jobs\CloseOrder;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -126,5 +128,47 @@ class OrdersController extends Controller
 
         return $order;
 //        return redirect()->back();
+    }
+
+    //查看评价
+    public function review(Order $order)
+    {
+        $this->authorize('own', $order);
+        if (!$order->paid_at)
+            throw new InvalidRequestException('该订单未支付');
+
+        $order = $order->load(['items.productSku', 'items.product']);
+        return view('orders.review', compact('order'));
+    }
+
+    //用户评价
+    public function sendReview(Order $order, SendReviewRequest $request)
+    {
+        $this->authorize('own', $order);
+        if (!$order->paid_at)
+            throw new InvalidRequestException('该订单未支付');
+        if ($order->reviewed)
+            throw new InvalidRequestException('该订单已经评价');
+
+        $reviews = $request->reviews;
+
+        DB::beginTransaction();
+        try {
+            foreach ($reviews as $review) {
+                $orderItem = $order->items()->find($review['id']);
+                $orderItem->update(array_merge(array_only($review, ['rating', 'review']), ['reviewed_at' => now()]));
+            }
+            $order->reviewed = true;
+            $order->save();
+            Log::info('ssss');
+            event(new OrderReviewd($order));
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            Log::info($exception->getMessage());
+        }
+//        return $order;
+        return redirect()->back();
+
     }
 }

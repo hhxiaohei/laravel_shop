@@ -39,6 +39,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('payment/{order}/wechat' , 'PaymentController@payByWechat')->name('payment.wechat');
         //支付宝 前端回调
         Route::get('payment/alipay/return','PaymentController@alipayReturn')->name('payment.alipay.return');
+        //用户评价
+        Route::post('orders/{order}/review','OrdersController@sendReview')->name('orders.review.send');
+        //用户评价信息
+        Route::get('orders/{order}/review','OrdersController@review')->name('orders.review.show');
     });
 });
 
