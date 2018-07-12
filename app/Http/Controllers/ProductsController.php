@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InternalException;
 use App\Exceptions\InvalidRequestException;
+use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -76,7 +77,14 @@ class ProductsController extends Controller
         if ($user = $request->user()) {
             $favored = (bool)$user->favoriteProducts()->find($product->id);
         }
-        return view('products.show', ['product' => $product, 'favored' => $favored]);
+        $reviews = OrderItem::query()
+            ->with(['order.user','productSku'])
+            ->where('product_id',$product->id)
+            ->whereNotNull('reviewed_at')
+            ->orderByDesc('reviewed_at')
+            ->limit(10)
+            ->get();
+        return view('products.show', ['product' => $product, 'favored' => $favored,'reviews'=>$reviews]);
     }
 
     /**
