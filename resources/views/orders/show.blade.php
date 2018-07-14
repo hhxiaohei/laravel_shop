@@ -70,6 +70,18 @@
                                     <div class="line-value">{{ $order->ship_data['express_company'] }} {{ $order->ship_data['express_no'] }}</div>
                                 </div>
                             @endif
+
+                            {{--订单已支付 且状态不是未退款   --}}
+                            @if($order->paid_at && $order->refund_status !== \App\Models\Order::REFUND_STATUS_PENDING)
+                                <div class="line">
+                                    <div class="line-label">退款状态:</div>
+                                    <div class="line-value">{{ \App\Models\Order::$refundStatusMap[$order->refund_status] }}</div>
+                                </div>
+                                <div class="line">
+                                    <div class="line-label">退款理由:</div>
+                                    <div class="line-value">{{ $order->extra['refund_reason'] }}</div>
+                                </div>
+                            @endif
                         </div>
                         <div class="order-summary text-right">
                             <div class="total-amount">
@@ -109,6 +121,15 @@
                                     </form>
                                 </div>
                             @endif
+
+                            {{--已支付 去退款--}}
+                            @if($order->paid_at && $order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
+                                <div class="refund-button">
+                                    <button class="btn btn-sm btn-danger" id="btn-apply-refund">
+                                        申请退款
+                                    </button>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -146,5 +167,26 @@
             });
 
         });
+
+        //退款点击事件
+        $('#btn-apply-refund').click(function () {
+            swal({
+                text:'请输入退款理由',
+                content:'input',
+            }).then(function (input){
+                if(!input){
+                    swal('退款理由不可以为空','','error');
+                    return;
+                }
+
+                //退款
+                axios.post('{!! route('orders.apply_refund',[$order->id]) !!}' , {reason:input}).
+                    then(function(){
+                        swal('申请退款成功','','success').then(function () {
+                            location.reload();
+                        });
+                })
+            })
+        })
     </script>
 @endsection
