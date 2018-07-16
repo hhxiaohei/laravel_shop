@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Exceptions\InternalException;
 use App\Exceptions\InvalidRequestException;
+use App\Http\Requests\Admin\HandleRefundRequest;
 use App\Models\Order;
 
 use Encore\Admin\Form;
@@ -160,5 +161,59 @@ class OrdersController extends Controller
 
         admin_toastr('发货成功!');
         return redirect()->back();
+    }
+
+    public function handleRefund(Order $order , HandleRefundRequest $request)
+    {
+        if($order->refund_status !== Order::REFUND_STATUS_APPLIED) throw new InvalidRequestException('订单状态不正确');
+
+        if($request->agree){
+            $this->_refundOrder($order);
+        }else{
+            //改为未退款状态
+            $extra = $order->extra ? : [];
+            $extra['refund_disagree_reason'] = $request->reason;
+            $order->extra = $extra;
+            $order->refund_status = Order::REFUND_STATUS_PENDING;
+            $order->save();
+        }
+
+        return $order;
+    }
+
+    public function _refundOrder(Order $order)
+    {
+        switch ($order->payment_method){
+            case 'wechat':
+                //todo wechat refund
+                break;
+            case 'alipay':
+                $refundNo = Order::getAvailableRefundNo();
+                $ret = app('alipay')->refund([
+                    'out_trade_no'   => $order->no,
+                    'refund_amount'  => $order->total_amount,
+                    'out_request_no' => $refundNo,
+                ]);
+                if($ret->sub_code){
+                    $extra = $order->extra;
+                    $extra['refund_failed_code'] = $ret->sub_code;
+                    $order->update([
+                        'refund_no'=>$refundNo,
+                        'refund_status'=>Order::REFUND_STATUS_FAILED,
+                        'extra'=>$extra,
+                    ]);
+                }else{
+                    $order->update([
+                        'refund_no'=>$refundNo,
+                        'refund_status'=>Order::REFUND_STATUS_SUCCESS
+                    ]);
+                }
+                break;
+            default:
+                throw new InvalidRequestException('退款方式错误:' . $order->payment_method);
+                break;
+        }
+
+        return $order;
     }
 }

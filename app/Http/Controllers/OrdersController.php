@@ -190,7 +190,6 @@ class OrdersController extends Controller
             'refund_status' => Order::REFUND_STATUS_APPLIED,
             'extra'         => $extra,
         ]);
-//todo 前端模板
         return $order;
     }
 }
