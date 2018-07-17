@@ -175,4 +175,37 @@ class PaymentController extends Controller
     {
         event(new OrderPaid($order));
     }
+
+    public function wechatRefundNotify(Request $request)
+    {
+        $failXml = '<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[FAIL]]></return_msg></xml>';
+        $input = parse_xml($failXml);
+
+        if(!$input || empty($input['req_info'])) return $failXml;
+
+        $encryptedXml = base64_decode($input['req_info'] , 1);
+        $decryptedXml = openssl_decrypt($encryptedXml,'AES-256-ECB',md5(config('pay.wechat.key')), OPENSSL_RAW_DATA, '');
+
+        if(!$decryptedXml) return $decryptedXml;
+
+        $decryptedData = parse_xml($decryptedXml);
+
+        if(!$order = Order::whereNo($decryptedData['out_trade_no'])->first())
+            return $failXml;
+
+        if($decryptedData['refund_status'] === 'SUCCESS'){
+            $order->update([
+                'refund_status'=>Order::REFUND_STATUS_SUCCESS,
+            ]);
+        }else{
+            $extra = $order->extra;
+            $extra['refund_failed_code'] = $decryptedData['refund_status'];
+            $order->update([
+                'refund_status'=>Order::REFUND_STATUS_FAILED
+            ]);
+        }
+
+        return '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
+
+    }
 }

@@ -54,3 +54,5 @@ Route::resource('products', 'ProductsController')->only(['index', 'show']);
 Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');
 //微信支付 服务器回调
 Route::post('payment/wechat/notify','PaymentController@wechatPayNotify')->name('payment.wechat.notify');
+//wechat refund
+Route::post('payment/wechat/refund_notify','PaymentController@wechatPayNotify')->name('payment.wechat.refund.notify');
