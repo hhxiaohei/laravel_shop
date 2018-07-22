@@ -147,5 +147,10 @@ class Order extends Model
         return $no;
     }
     
+    //coupons
+    public function couponCode()
+    {
+        return $this->belongsTo(CouponCode::class , 'coupon_code_id','id');
+    }
     
 }
