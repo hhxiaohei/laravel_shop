@@ -20,7 +20,7 @@
     },
     "dependencies": {
         "china-area-data": "^4.0.0",
-        "npm": "^6.13.4",
+        "npm": "^9.4.1",
         "sweetalert": "^2.1.0"
     }
 }
